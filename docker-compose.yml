@@ -1,0 +1,12 @@
+version: "3.4"
+
+services: 
+  node-web-app:
+    image: node-web-app
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: node-web-app
+    ports: 
+      - "3000:3000"
+    restart: unless-stopped
