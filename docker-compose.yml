@@ -1,12 +1,57 @@
-version: "3.4"
+version: "3.8"
 
-services: 
-  node-web-app:
-    image: node-web-app
-    build: 
-      context: .
-      dockerfile: Dockerfile
-    container_name: node-web-app
-    ports: 
-      - "3000:3000"
+services:   
+  nodedb:
+    image: mysql
+    container_name: nodedb
+    env_file: ./.env
+    ports:
+      - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
+    environment: 
+      - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - MYSQL_DATABASE=$MYSQLDB_DATABASE
+    volumes: 
+      - mynode_db:/var/lib/mysql
+      - mysql_config:/etc/mysql
+      - ./db.sql:/data_backup/data.sql
     restart: unless-stopped
+    networks:
+      - rednode
+  
+  web-app:
+    depends_on:
+      - nodedb
+    image: web-app
+    container_name: webnode
+    command: npm run dev
+    env_file: ./.env
+    build: 
+      context: ./myweb_node/
+      dockerfile: Dockerfile
+    volumes:
+      - ./myweb_node:/usr/src/app
+      - node_modules:/usr/src/app/node_modules
+    ports: 
+      - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
+    environment:
+      - DB_HOST=mysqldb
+      - DB_USER=$MYSQLDB_USER
+      - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
+      - DB_NAME=$MYSQLDB_DATABASE
+      - DB_PORT=$MYSQLDB_DOCKER_PORT
+    restart: unless-stopped
+    networks: 
+      - rednode
+
+volumes: 
+  mynode_db:
+    name: mynode_db
+  mysql_config:
+    name: mysql_config
+  node_modules:
+    name: node_modules
+
+networks:
+  rednode:
+    name: rednode
+    driver: bridge
