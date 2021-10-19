@@ -1,16 +1,24 @@
 'use strict';
 
-require("dotenv").config();
+require('dotenv').config()
+
+const PORT = process.env.NODE_PORT;
+// const HOST = 0.0 .0 .0;
+// const HOST = process.env.NODE_HOST;
 
 const express = require('express');
-const PORT = process.env.NODE_DOCKER_PORT || 3000;
-const HOST = '0.0.0.0';
+// const bodyParser = require("body-parser");
+const userRoutes = require('./routes/users.route');
 
 // App
 const app = express();
+
+app.use(express.json());
+app.use('/users', userRoutes);
+
 app.get('/', (req, res) => {
-    res.send('Hello World!!!');
+    res.send('Hello World!');
 });
 
-app.listen(PORT, HOST);
-console.log(`Running on http://${HOST}:${PORT}`);
+app.listen(PORT);
+console.log(`Running on http://localhost:${PORT}`);
