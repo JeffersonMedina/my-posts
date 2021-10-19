@@ -4,10 +4,10 @@ services:
   nodedb:
     image: mysql
     container_name: nodedb
-    env_file: ./.env
+    # env_file: ./.env
     ports:
       - $MYSQLDB_LOCAL_PORT:$MYSQLDB_DOCKER_PORT
-    environment: 
+    environment:
       - MYSQL_ROOT_PASSWORD=$MYSQLDB_ROOT_PASSWORD
       - MYSQL_DATABASE=$MYSQLDB_DATABASE
     volumes: 
@@ -23,8 +23,8 @@ services:
       - nodedb
     image: web-app
     container_name: webnode
-    command: npm run dev
-    env_file: ./.env
+    command: npm run start
+    # env_file: ./.env
     build: 
       context: ./myweb_node/
       dockerfile: Dockerfile
@@ -34,7 +34,9 @@ services:
     ports: 
       - $NODE_LOCAL_PORT:$NODE_DOCKER_PORT
     environment:
-      - DB_HOST=mysqldb
+      - NODE_HOST=$NODE_LOCAL_HOST
+      - NODE_PORT=$NODE_DOCKER_PORT
+      - DB_HOST=nodedb
       - DB_USER=$MYSQLDB_USER
       - DB_PASSWORD=$MYSQLDB_ROOT_PASSWORD
       - DB_NAME=$MYSQLDB_DATABASE
